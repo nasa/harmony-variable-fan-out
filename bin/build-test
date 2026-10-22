@@ -1,0 +1,21 @@
+#!/bin/bash
+###############################################################################
+#
+# Build a Docker container test the variable-fan-out-Service
+#
+# To build the ghcr.io/nasa/variable-fan-out-test image, the
+# ghcr.io/nasa/variable-fan-out image must also be present
+# locally, as it is used as the base image in `docker/tests.Dockerfile`.
+#
+###############################################################################
+
+set -e
+
+image="ghcr.io/nasa/variable-fan-out-test"
+tag=${1:-latest}
+
+# Build the image
+docker build -t ${image}:${tag} -f docker/tests.Dockerfile .
+
+# Remove this project's images left untagged by the rebuild.
+docker image prune -f --filter label=project=variable-fan-out

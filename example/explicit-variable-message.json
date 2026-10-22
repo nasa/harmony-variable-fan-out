@@ -1,0 +1,48 @@
+{
+  "sources": [
+    {
+      "collection": "C1256108792-EEDTEST",
+      "shortName": "SPL4SMLM",
+      "versionId": "006",
+      "variables": [
+        {
+          "id": "V1256108860-EEDTEST",
+          "name": "/Land-Model-Constants_Data/mwrtm_rghhmin",
+          "fullPath": "/Land-Model-Constants_Data/mwrtm_rghhmin",
+          "type": "SCIENCE_VARIABLE",
+          "visualizations": []
+        },
+        {
+          "id": "V1256108809-EEDTEST",
+          "name": "cell_lon",
+          "fullPath": "cell_lon",
+          "type": "SCIENCE_VARIABLE",
+          "visualizations": []
+        }
+      ],
+      "coordinateVariables": [],
+      "visualizations": []
+    }
+  ],
+  "format": {
+    "mime": "image/tiff"
+  },
+  "subset": {
+    "dimensions": []
+  },
+  "isSynchronous": false,
+  "concatenate": false,
+  "extraArgs": {
+    "granValidation": {
+      "reason": 2,
+      "serviceName": "net2cog",
+      "maxResults": 1
+    }
+  },
+  "requestId": "1ee42275-7b6d-4f18-ab86-07efdfce03c9",
+  "user": "unused-user",
+  "client": "harmony-local",
+  "accessToken": "SET_FROM_UAT_BEARER_ENV_VAR",
+  "stagingLocation": "/tmp",
+  "version": "0.22.0"
+}

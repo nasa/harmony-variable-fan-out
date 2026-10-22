@@ -1,0 +1,42 @@
+# This workflow will build the service and test Docker images for
+# variable-fan-out, then run the Python `pytest` suite within a test Docker
+# container, reporting test results and code coverage as artefacts. It will be
+# called by the workflow that run tests against new PRs and as a first step in
+# the workflow that publishes new Docker images.
+name: Run Python unit tests
+
+on:
+  workflow_call
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+
+    steps:
+      - name: Checkout harmony-variable-fan-out repository
+        uses: actions/checkout@v7
+
+      - name: Build service image
+        run: ./bin/build-image
+
+      - name: Build test image
+        run: ./bin/build-test
+
+      - name: Run test image
+        run: ./bin/run-test
+
+      - name: Archive test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: Test results
+          path: reports/test-reports/
+
+      - name: Archive coverage report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: Coverage report
+          path: reports/coverage/*
