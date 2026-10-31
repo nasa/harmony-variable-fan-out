@@ -1,0 +1,27 @@
+#!/bin/bash
+###############################################################################
+#
+# Build a Docker image of the service.
+#
+# 2026-10-07: copied from HOSS.
+###############################################################################
+
+set -e
+
+image="ghcr.io/nasa/harmony-variable-fan-out"
+
+# Retrieve the tag from the script arguments, or default to "latest". Bamboo
+# will pass the contents of `docker/service_version.txt` as this argument,
+# which contains a semantic version number.
+#
+tag=${1:-latest}
+
+# Build the image
+# This command tags the image with two tags:
+# - The one supplied as a script argument.
+# - "latest", so the test Dockerfile can use the service image as a base image.
+
+docker build -t ${image}:${tag} -t ${image}:latest -f docker/service.Dockerfile .
+
+# Remove this project's images left untagged by a rebuild.
+docker image prune -f --filter label=project=harmony-variable-fan-out

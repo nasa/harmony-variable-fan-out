@@ -1,0 +1,22 @@
+[project]
+name = "harmony-variable-fan-out"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+    "h5netcdf>=1.8.1",
+    "harmony-service-lib>=3.0.0",
+    "net2cog>=1.4.1",
+    "netcdf4>=1.7.4",
+    "numpy>=2.5.3",
+    "xarray>=2026.9.0",
+]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.7.0",
+    "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
+]
+
+[tool.pytest]
+pythonpath = ["."]
