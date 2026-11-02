@@ -1,0 +1,29 @@
+{
+  "stac_version": "1.0.0-beta.2",
+  "stac_extensions": [],
+  "id": "granule-uuid",
+  "type": "Feature",
+  "links": [],
+  "properties": {
+    "start_datetime": "2015-03-31T00:00:00.000Z",
+    "end_datetime": "2021-01-01T01:29:59.999Z",
+    "datetime": "2015-03-31T00:00:00.000Z"
+  },
+  "bbox": [
+    -180,
+    -85.04456,
+    180,
+    85.04456
+  ],
+  "geometry": {},
+  "assets": {
+    "data": {
+      "href": "https://harmony.uat.earthdata.nasa.gov/service-results/harmony-uat-eedtest-data/C1256108792-EEDTEST/SMAP_L4_SM_lmc_00000000T000000_Vv6030_001.h5",
+      "title": "SMAP_L4_SM_lmc_00000000T000000_Vv6030_001.h5",
+      "description": "Download SMAP_L4_SM_lmc_00000000T000000_Vv6030_001.h5",
+      "roles": [
+        "data"
+      ]
+    }
+  }
+}
