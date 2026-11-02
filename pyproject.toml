@@ -1,6 +1,7 @@
 [project]
 name = "harmony-variable-fan-out"
-version = "0.1.0"
+# not actually dynamic, source or truth is in the docker/version.txt file.
+dynamic = ["version"]
 requires-python = ">=3.14"
 dependencies = [
     "h5netcdf>=1.8.1",
