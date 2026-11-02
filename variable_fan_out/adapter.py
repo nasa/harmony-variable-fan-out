@@ -141,8 +141,7 @@ class VariableFanOutAdapter(BaseHarmonyAdapter):
             self.logger.exception(
                 "Exception during fan out catalog processing: returning input catalog."
             )
-
-        return (self.message, self.catalog)
+            return (self.message, self.catalog)
 
     def _set_item_variable(
         self, catalog: Catalog, item: Item, variable: str, index: int
