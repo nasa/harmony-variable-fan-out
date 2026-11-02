@@ -23,5 +23,11 @@ tag=${1:-latest}
 
 docker build -t ${image}:${tag} -t ${image}:latest -f docker/service.Dockerfile .
 
+# Remove the stale test images
+docker images -q --filter reference="${image}-test" \
+    | sort -u \
+    | xargs -r docker rmi -f
+
+
 # Remove this project's images left untagged by a rebuild.
 docker image prune -f --filter label=project=harmony-variable-fan-out
