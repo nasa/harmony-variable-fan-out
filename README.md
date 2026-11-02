@@ -62,7 +62,7 @@ The `pytest` suite is run automatically within a GitHub workflow as part of a CI
 ## `pre-commit` hooks
 
 This repository uses [pre-commit](https://pre-commit.com/) to enforce checks that coding standard best practices are followed.
-a .pre-commit-config.yaml file is set in the rood directory and GitHub is configured to run the checks automatically to:
+a .pre-commit-config.yaml file is set in the root directory and GitHub is configured to run the checks automatically to:
 
 * Removes trailing whitespaces.
 * Removes blank lines at the end of a file.
