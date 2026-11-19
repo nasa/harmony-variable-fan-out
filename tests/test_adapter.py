@@ -109,20 +109,47 @@ def test_fans_out_one_catalog_per_variable(two_variable_netcdf_file):
     assert "harmony:variable" not in next(catalog.get_items("granule")).properties
 
 
-def test_explicit_variables_return_input_catalog():
-    """A single item catalog with a netcdf_file containing two variables and a
-    Harmony Message with explicit variables returns the input catalog without
-    downloading the input item's file.
+def test_explicit_variables_fan_out_without_download():
+    """A single item catalog and a Harmony Message with explicit variables
+    creates a catalog for each requested variable without downloading the
+    input item's file.
     """
     catalog = make_catalog(["granule"])
     message_with_explicit_vars = make_harmony_message(variables=["var4", "var5"])
 
     with patch("variable_fan_out.adapter.download") as download:
-        _, output_catalog = VariableFanOutAdapter(
+        _, output_catalogs = VariableFanOutAdapter(
             message_with_explicit_vars, catalog
         ).invoke()
 
-    assert output_catalog is catalog
+    for c, expected_var in zip(output_catalogs, ["var4", "var5"], strict=True):
+        items = list(c.get_items())
+        assert len(items) == 1
+        assert items[0].properties["harmony:variable"] == expected_var
+    download.assert_not_called()
+
+
+def test_explicit_variables_fan_out_every_item():
+    """Every Item in a multi-item catalog gets a catalog per requested variable."""
+    catalog = make_catalog(["granule1", "granule2"])
+    message_with_explicit_vars = make_harmony_message(variables=["var4", "var5"])
+
+    with patch("variable_fan_out.adapter.download") as download:
+        _, output_catalogs = VariableFanOutAdapter(
+            message_with_explicit_vars, catalog
+        ).invoke()
+
+    expected = [
+        ("granule1-var-1", "var4"),
+        ("granule1-var-2", "var5"),
+        ("granule2-var-1", "var4"),
+        ("granule2-var-2", "var5"),
+    ]
+    for c, (expected_id, expected_var) in zip(output_catalogs, expected, strict=True):
+        items = list(c.get_items())
+        assert len(items) == 1
+        assert items[0].id == expected_id
+        assert items[0].properties["harmony:variable"] == expected_var
     download.assert_not_called()
 
 

@@ -17,17 +17,17 @@ class VariableFanOutAdapter(BaseHarmonyAdapter):
     """
 
     def invoke(self) -> tuple[Message, Catalog | list[Catalog]]:
-        """Writes a catalog per (item, variable) when no explicit vars are requested.
+        """Writes a catalog per (item, variable).
 
         The harmony variable fan out service processes the incoming
-        ``Harmony.message``.  It checks to see if there are any explicitly
-        defined variables in the message's source and if so, passes the message
-        along as a no-op to the next service in the chain [net2cog].
+        ``Harmony.message``.  For each Item it finds the Item's source in the
+        message.  If that source explicitly requests variables, those are the
+        Item's variables and nothing is downloaded.
 
-        If the incoming message has not explicitly asked for variables from
-        the file, this routine downloads each Item's data asset and generates
-        its list of variables using net2cogs get_all_data_variables routine
-        directly.  [Generally (always?) there will be one Item per Catalog.]
+        If the source has not explicitly asked for variables from the file,
+        this routine downloads the Item's data asset and generates its list of
+        variables using net2cogs get_all_data_variables routine directly.
+        [Generally (always?) there will be one Item per Catalog.]
 
         For every item and every variable it writes a catalog containing the
         variable's name added to the item's properties as ``harmony:variable``.
@@ -48,7 +48,7 @@ class VariableFanOutAdapter(BaseHarmonyAdapter):
         skipped locally without fanning out and repeating downloads.
 
         Returns a tuple of the input Message and either the input Catalog (on
-        error or explicit variables requested), or a list of catalogs, one per
+        error), or a list of catalogs, one per
         item/variable pair, each containing a single item from the input
         catalog amended with one of its variables.
 
@@ -68,50 +68,25 @@ class VariableFanOutAdapter(BaseHarmonyAdapter):
             return (self.message, self.catalog)
 
         try:
-            if any(source.variables for source in self.message.sources):
-                self.logger.info(
-                    "explicit variables requested; exiting without creating fan out catalogs"
-                )
-                return (self.message, self.catalog)
-
-            # Discover each Item's own variables and clone a catalog for every
-            # variable in the Item's href
+            # Clone a catalog for every variable of every Item. Requested
+            # variables are used as-is; otherwise each Item's own variables are
+            # discovered via href download.
             catalogs = []
             for item in self.catalog.get_items():
-                asset = next(
-                    v for v in item.assets.values() if "data" in (v.roles or [])
-                )
-                href = asset.href
-                self.logger.info(f"Discovered href: {href}")
-                with TemporaryDirectory() as tmpdir:
-                    input_filename = download(
-                        href,
-                        tmpdir,
-                        logger=self.logger,
-                        access_token=self.message.accessToken,
-                        cfg=self.config,
+                source = self._get_item_source(item)
+                if source.variables:
+                    var_list = [var.name for var in source.variables]
+                    self.logger.info(
+                        f"Using requested variables for item {item.id}: {var_list}"
                     )
-                    with xr.open_datatree(
-                        input_filename,
-                        decode_coords=False,
-                        decode_times=False,
-                        decode_timedelta=False,
-                        concat_characters=True,
-                    ) as input_datatree:
-                        # use net2cogs function directly to get a list of
-                        # variables that can be processed by net2cog. which is
-                        # described as A list of paths to all variables in the
-                        # `data_vars` property of any node in the
-                        # DataTree. These variables are filtered to remove any
-                        # variables that are 1-D, attribute-only (e.g., CRS
-                        # definitions), dtype = string(S1/S2), or variable without dimensions.
-                        var_list = get_all_data_variables(input_datatree, self.logger)
+                else:
+                    var_list = self._discover_variables(item)
 
-                # If we don't discover any variables, we add this Item alone to
-                # a catalog, for the unlikely case of multiple items, we don't
-                # want to just pass on the original catalog in case we can
-                # still process the second item. (rather than just returning
-                # the input catalog)
+                # If we don't discover any variables with _discover_variables,
+                # we add this Item alone to a catalog, for the unlikely case of
+                # multiple items, we don't want to just pass on the original
+                # catalog in case we can still process the second item. (rather
+                # than just returning the input catalog)
                 if not var_list:
                     self.logger.info(
                         f"No variables found for item {item.id}; passing it through unchanged"
@@ -142,6 +117,35 @@ class VariableFanOutAdapter(BaseHarmonyAdapter):
                 "Exception during fan out catalog processing: returning input catalog."
             )
             return (self.message, self.catalog)
+
+    def _discover_variables(self, item: Item) -> list[str]:
+        """Download item's data asset and return the variables net2cog can process."""
+        asset = next(v for v in item.assets.values() if "data" in (v.roles or []))
+        href = asset.href
+        self.logger.info(f"Discovered href: {href}")
+        with TemporaryDirectory() as tmpdir:
+            input_filename = download(
+                href,
+                tmpdir,
+                logger=self.logger,
+                access_token=self.message.accessToken,
+                cfg=self.config,
+            )
+            with xr.open_datatree(
+                input_filename,
+                decode_coords=False,
+                decode_times=False,
+                decode_timedelta=False,
+                concat_characters=True,
+            ) as input_datatree:
+                # use net2cogs function directly to get a list of
+                # variables that can be processed by net2cog. which is
+                # described as A list of paths to all variables in the
+                # `data_vars` property of any node in the
+                # DataTree. These variables are filtered to remove any
+                # variables that are 1-D, attribute-only (e.g., CRS
+                # definitions), dtype = string(S1/S2), or variable without dimensions.
+                return get_all_data_variables(input_datatree, self.logger)
 
     def _set_item_variable(
         self, catalog: Catalog, item: Item, variable: str, index: int

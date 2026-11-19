@@ -477,7 +477,6 @@ wheels = [
 
 [[package]]
 name = "harmony-variable-fan-out"
-version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "h5netcdf" },
