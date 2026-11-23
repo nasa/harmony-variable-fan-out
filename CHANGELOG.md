@@ -6,10 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [v0.0.2] - 2026-11-23
+
+### Changed
+
+- Variables found on the input Harmony Message are now fanned out with the `harmony:variable` property.
+
 ## [v0.0.1] - 2026-10-20
 
 ### Added
 
 - Initial codebase that implements Harmony's Fan Out Service container, tests, docker builds, and CI/CD.
 
+[v0.0.2]: https://github.com/nasa/harmony-variable-fan-out/releases/tag/0.0.2
 [v0.0.1]: https://github.com/nasa/harmony-variable-fan-out/releases/tag/0.0.1
