@@ -1,6 +1,6 @@
 [project]
 name = "harmony-variable-fan-out"
-# not actually dynamic, source or truth is in the docker/version.txt file.
+# not actually dynamic; source of truth is docker/service_version.txt.
 dynamic = ["version"]
 requires-python = ">=3.14"
 dependencies = [
