@@ -14,12 +14,12 @@ flowchart TD
     B -- yes --> E
     C --> D{Item has variables?}
     D -- yes --> E[One catalog per variable, each holding a cloned item with harmony:variable set]
-    D -- no --> F[One catalog holding an unchanged clone of the item]
+    D -- no --> F["One catalog holding an unchanged clone of the item (fails in net2cog)"]
     E --> G[Return list of catalogs to Harmony]
     F --> G
     G --> H[net2cog job 1] & I[net2cog job 2] & J[net2cog job ...] & K[net2cog job N]
     C -. any error .-> P[Return input catalog to Harmony]
-    P --> Q["One net2cog job with input catalog (probably fails there)"]
+    P --> Q["One net2cog job with input catalog"]
 ```
 
 ## Contributing
